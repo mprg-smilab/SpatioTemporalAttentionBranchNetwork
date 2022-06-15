@@ -1,0 +1,12 @@
+*.pyc
+__pycache__/
+
+trash/
+runs/
+runs_old/
+runs_mistake/
+
+script_abci/
+
+script_local/rsync_send.sh
+script_local/rsync_receive.sh
