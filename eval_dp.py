@@ -3,9 +3,10 @@
 
 
 """
-eval.py
+eval_dp.py
 
 This script evaluates a trained ST-ABN or 3D ResNet with Something-Something V2 Dataset.
+This script uses network model trained by Data Parallel (DP).
 """
 
 
