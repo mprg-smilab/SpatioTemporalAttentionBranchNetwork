@@ -38,6 +38,18 @@ python3 -m torch.distributed.launch \
     --use_nesterov --num_workers 16
 
 
+### Resuming ST-ABN (ResNet50)
+python3 -m torch.distributed.launch \
+    --nproc_per_node=8 --master_addr="localhost" --master_port=1234 train_ddp.py \
+    --model abn_resnet50 --pretrained \
+    --video_data_dir /raid/hirakawa/dataset/something-something-v2/frame \
+    --train_label_file /raid/hirakawa/dataset/something-something-v2/anno/train_videofolder.txt \
+    --val_label_file /raid/hirakawa/dataset/something-something-v2/anno/val_videofolder.txt \
+    --logdir ./runs/abn_resnet50 \
+    --use_nesterov --num_workers 16 \
+    --resume checkpoint-latest.pt
+
+
 # -----------------------------------------------
 # MEMO
 # -----------------------------------------------

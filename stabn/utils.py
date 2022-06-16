@@ -28,9 +28,16 @@ def save_checkpoint(save_filename, model, optimizer, scheduler, best_score, epoc
         }, save_filename)
 
 
-def load_checkpoint(load_filename, model, optimizer=None, scheduler=None):
-    _ckpt = torch.load(load_filename)
-    model.load_state_dict(_ckpt['model_state_dict'])
+def load_checkpoint(load_filename, model=None, optimizer=None, scheduler=None, device=None):
+    ### load checkpoint
+    if device is not None:
+        _ckpt = torch.load(load_filename, map_location=torch.device(device))
+    else:
+        _ckpt = torch.load(load_filename)
+
+    ### load state dicts
+    if model is not None:
+        model.load_state_dict(_ckpt['model_state_dict'])
     if optimizer is not None:
         optimizer.load_state_dict(_ckpt['optimizer_state_dict'])
     if scheduler is not None:

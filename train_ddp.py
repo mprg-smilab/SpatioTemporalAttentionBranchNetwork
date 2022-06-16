@@ -157,6 +157,10 @@ def main():
     device = torch.device('cuda:{}'.format(args.local_rank))
     model = model.to(device)
     criterion = criterion.to(device)
+    ### resume
+    if args.resume is not None:
+        model, _, _, _, _, _ = load_checkpoint(os.path.join(args.logdir, args.resume), model, None, None, device)
+    ### distributed
     ddp_model = torch.nn.parallel.DistributedDataParallel(
         model, device_ids=[args.local_rank], output_device=args.local_rank
     )
@@ -173,14 +177,14 @@ def main():
 
     # resume ##############################################
     if args.resume is not None:
-        print("Load checkpoint for resuming a training ...")
-        print("    checkpoint:", os.path.join(args.logdir, args.resume))
-        ddp_model, optimizer, scheduler, initial_epoch, iteration, best_score = load_checkpoint(
-            os.path.join(args.logdir, args.resume), ddp_model, optimizer, scheduler
+        print("Load checkpoint for resuming a training: checkpoint:", os.path.join(args.logdir, args.resume))
+        _, optimizer, scheduler, initial_epoch, iteration, best_score = load_checkpoint(
+            os.path.join(args.logdir, args.resume), None, optimizer, scheduler, device
         )
         initial_epoch += 1
 
     # tensorboardX ########################################
+    dist.barrier()
     if args.is_master:
         print("open SummaryWriter ...")
         writer = SummaryWriter(log_dir=args.logdir)
