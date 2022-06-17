@@ -101,7 +101,7 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, sample_size, sample_duration, num_classes=400):
+    def __init__(self, block, layers, sample_size, sample_duration, num_classes=400, dropout_ratio=0.5):
         self.inplanes = 64
         super(ResNet, self).__init__()
 
@@ -117,6 +117,7 @@ class ResNet(nn.Module):
         last_duration = math.ceil(sample_duration / 16)
         last_size = math.ceil(sample_size / 32)
         self.avgpool = nn.AvgPool3d((last_duration, last_size, last_size), stride=1)
+        self.dropout = nn.Dropout(p=dropout_ratio)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
         for m in self.modules():
@@ -158,6 +159,7 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
 
         x = x.view(x.size(0), -1)
+        x = self.dropout(x)
         x = self.fc(x)
 
         return x
@@ -196,35 +198,40 @@ def load_2d_pretrain_model(model, model_name, verbose=False):
 def resnet18(pretrain_2d=False, **kwargs):
     """Constructs a 3D ResNet-18 model."""
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet18')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet18')
     return model
 
 
 def resnet34(pretrain_2d=False, **kwargs):
     """Constructs a 3D ResNet-34 model."""
     model = ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet34')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet34')
     return model
 
 
 def resnet50(pretrain_2d=False, **kwargs):
     """Constructs a 3D ResNet-50 model."""
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet50')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet50')
     return model
 
 
 def resnet101(pretrain_2d=False, **kwargs):
     """Constructs a 3D ResNet-101 model."""
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet101')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet101')
     return model
 
 
 def resnet152(pretrain_2d=False, **kwargs):
     """Constructs a 3D ResNet-101 model."""
     model = ResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet152')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet152')
     return model
 
 
@@ -234,6 +241,7 @@ if __name__ == '__main__':
     n_class = 174
     image_size = 224
     frame_length = 32
+    d_ratio = 0.5
 
     ### kinetics setting
     # n_class = 400
@@ -244,25 +252,26 @@ if __name__ == '__main__':
     print("    number of classes:", n_class)
     print("    image size:", image_size)
     print("    frame length:", frame_length)
+    print("    dropout ratio:", d_ratio)
 
     input = torch.zeros([2, 3, frame_length, image_size, image_size], dtype=torch.float32)
 
-    model18 = resnet18(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length)
+    model18 = resnet18(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length, dropout_ratio=d_ratio)
     output18 = model18(input)
     print(output18.size())
 
-    model34 = resnet34(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length)
+    model34 = resnet34(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length, dropout_ratio=d_ratio)
     output34 = model34(input)
     print(output34.size())
 
-    model50 = resnet50(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length)
+    model50 = resnet50(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length, dropout_ratio=d_ratio)
     output50 = model50(input)
     print(output50.size())
 
-    model101 = resnet101(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length)
+    model101 = resnet101(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length, dropout_ratio=d_ratio)
     output101 = model101(input)
     print(output101.size())
 
-    model152 = resnet152(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length)
+    model152 = resnet152(pretrain_2d=True, num_classes=n_class, sample_size=image_size, sample_duration=frame_length, dropout_ratio=d_ratio)
     output152 = model152(input)
     print(output152.size())

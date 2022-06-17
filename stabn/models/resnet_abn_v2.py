@@ -109,7 +109,7 @@ class Bottleneck(nn.Module):
 
 class ABNResNet(nn.Module):
 
-    def __init__(self, block, layers, sample_duration, num_classes=400, verbose=False):
+    def __init__(self, block, layers, sample_duration, num_classes=400, dropout_ratio=0.5, verbose=False):
         self.inplanes = 64
         super(ABNResNet, self).__init__()
 
@@ -130,6 +130,7 @@ class ABNResNet(nn.Module):
         # perception branch -----------
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2, temporal_ksize=3)
         self.avgpool = nn.AdaptiveAvgPool3d(1)
+        self.dropout_per = nn.Dropout(p=dropout_ratio)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
         # attention branch ------------
@@ -149,6 +150,7 @@ class ABNResNet(nn.Module):
             nn.Conv3d(num_classes, num_classes, kernel_size=1, padding=0, bias=False),
             nn.AdaptiveAvgPool3d((sample_duration, 1, 1))
         )
+        self.dropout_att = nn.Dropout(p=dropout_ratio)
         self.fc_att_out = nn.Linear(num_classes * sample_duration, 174)
 
         # spatial attention branch
@@ -232,6 +234,7 @@ class ABNResNet(nn.Module):
         if self.verbose: print("    output of att branch")
         out_att = self.conv_att_out(x_att)
         out_att = out_att.view(out_att.size(0), -1)
+        out_att = self.dropout_att(out_att)
         out_att = self.fc_att_out(out_att)
         
         # spatial attention branch
@@ -259,10 +262,11 @@ class ABNResNet(nn.Module):
 
         # perception branch -----------
         if self.verbose: print("perception branch")
-        x_per = self.layer4(x_att_mechanism)
-        x_per = self.avgpool(x_per)
-        x_per = x_per.view(x_per.size(0), -1)
-        out_per = self.fc(x_per)
+        out_per = self.layer4(x_att_mechanism)
+        out_per = self.avgpool(out_per)
+        out_per = out_per.view(out_per.size(0), -1)
+        out_per = self.dropout_per(out_per)
+        out_per = self.fc(out_per)
 
         return out_per, out_att, spatial_att, temporal_att
 
@@ -300,35 +304,40 @@ def load_2d_pretrain_model(model, model_name, verbose=False):
 def abn_resnet18_v2(pretrain_2d=False, **kwargs):
     """Constructs an ST Attention Branch Network with 3D ResNet-18 model (v2)."""
     model = ABNResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet18')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet18')
     return model
 
 
 def abn_resnet34_v2(pretrain_2d=False, **kwargs):
     """Constructs an ST Attention Branch Network with 3D ResNet-34 model (v2)."""
     model = ABNResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet34')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet34')
     return model
 
 
 def abn_resnet50_v2(pretrain_2d=False, **kwargs):
     """Constructs an ST Attention Branch Network with 3D ResNet-50 model (v2)."""
     model = ABNResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet50')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet50')
     return model
 
 
 def abn_resnet101_v2(pretrain_2d=False, **kwargs):
     """Constructs an ST Attention Branch Network with 3D ResNet-101 model (v2)."""
     model = ABNResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet101')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet101')
     return model
 
 
 def abn_resnet152_v2(pretrain_2d=False, **kwargs):
     """Constructs an ST Attention Branch Network with 3D ResNet-101 model (v2)."""
     model = ABNResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
-    model = load_2d_pretrain_model(model, 'resnet152')
+    if pretrain_2d:
+        model = load_2d_pretrain_model(model, 'resnet152')
     return model
 
 
@@ -338,6 +347,7 @@ if __name__ == '__main__':
     n_class = 174
     image_size = 224
     frame_length = 32
+    d_ratio = 0.5
 
     ### kinetics setting
     # n_class = 400
@@ -348,25 +358,26 @@ if __name__ == '__main__':
     print("    number of classes:", n_class)
     print("    image size:", image_size)
     print("    frame length:", frame_length)
+    print("    dropout ratio:", d_ratio)
 
     input = torch.zeros([2, 3, frame_length, image_size, image_size], dtype=torch.float32)
 
-    model18 = abn_resnet18_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length)
+    model18 = abn_resnet18_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length, dropout_ratio=d_ratio)
     output18 = model18(input)
     print(output18[0].size(), output18[1].size(), output18[2].size(), output18[3].size())
 
-    model34 = abn_resnet34_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length)
+    model34 = abn_resnet34_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length, dropout_ratio=d_ratio)
     output34 = model34(input)
     print(output34[0].size(), output34[1].size(), output34[2].size(), output34[3].size())
 
-    model50 = abn_resnet50_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length)
+    model50 = abn_resnet50_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length, dropout_ratio=d_ratio)
     output50 = model50(input)
     print(output50[0].size(), output50[1].size(), output50[2].size(), output50[3].size())
 
-    model101 = abn_resnet101_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length)
+    model101 = abn_resnet101_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length, dropout_ratio=d_ratio)
     output101 = model101(input)
     print(output101[0].size(), output101[1].size(), output101[2].size(), output101[3].size())
 
-    model152 = abn_resnet152_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length)
+    model152 = abn_resnet152_v2(pretrain_2d=True, num_classes=n_class, sample_duration=frame_length, dropout_ratio=d_ratio)
     output152 = model152(input)
     print(output152[0].size(), output152[1].size(), output152[2].size(), output152[3].size())
