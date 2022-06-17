@@ -65,6 +65,7 @@ def parser():
     ### dataset settings
     arg_parser.add_argument('--frame_size', type=int, default=224, help='frame size of video clips')
     arg_parser.add_argument('--frame_length', type=int, default=32, help='frame length of a single video clips')
+    arg_parser.add_argument('--dout_ratio', type=float, default=0.5, help='dropout ratio')
 
     ### traininig settings
     arg_parser.add_argument('--logdir', type=str, required=True, help='directory for storing train log and checkpoints')
@@ -97,6 +98,7 @@ def parser():
         args.pretrained   = _resume_args['pretrained']
         args.frame_size   = _resume_args['frame_size']
         args.frame_length = _resume_args['frame_length']
+        args.dout_ratio   = _resume_args['dout_ratio']
         args.batch_size   = _resume_args['batch_size']
         args.epochs       = _resume_args['epochs']
         args.lr           = _resume_args['lr']
@@ -149,7 +151,7 @@ def main():
     _is_abn = True if "abn_" in args.model else False
     model = load_model(
         model_name=args.model, num_classes=train_dataset.NUM_CLASSES,
-        sample_size=args.frame_size, sample_duration=args.frame_length, pretrain_2d=args.pretrained
+        sample_size=args.frame_size, sample_duration=args.frame_length, dout_ratio=args.dout_ratio, pretrain_2d=args.pretrained
     )
     criterion = nn.CrossEntropyLoss()
 

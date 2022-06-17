@@ -90,7 +90,7 @@ def main():
     _is_abn = True if "abn_" in train_args['model'] else False
     model = load_model(
          model_name=train_args['model'], num_classes=train_dataset.NUM_CLASSES,
-        sample_size=train_args['frame_size'], sample_duration=train_args['frame_length'], pretrain_2d=False
+        sample_size=train_args['frame_size'], sample_duration=train_args['frame_length'], dout_ratio=train_args['dout_ratio'], pretrain_2d=False
     )
 
     # resume ##############################################
