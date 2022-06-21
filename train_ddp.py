@@ -141,7 +141,7 @@ def main():
     ### train loader with distributed sampler
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=args.batch_size,
-        sampler=train_sampler, shuffle=True, num_workers=args.num_workers
+        sampler=train_sampler, shuffle=False, num_workers=args.num_workers
     )
     ### validation loader with distributed sampler
     val_loader = DataLoader(
