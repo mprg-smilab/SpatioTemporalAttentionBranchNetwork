@@ -230,8 +230,9 @@ def main():
 
             if iteration % LOG_STEP == 0:
                 dist.all_reduce(loss_sum, op=dist.ReduceOp.SUM)
-                dist.all_reduce(loss_sum_per, op=dist.ReduceOp.SUM)
-                dist.all_reduce(loss_sum_att, op=dist.ReduceOp.SUM)
+                if _is_abn:
+                    dist.all_reduce(loss_sum_per, op=dist.ReduceOp.SUM)
+                    dist.all_reduce(loss_sum_att, op=dist.ReduceOp.SUM)
 
                 if args.is_master:
                     print("iteration: %06d loss: %0.8f (per: %0.8f, att: %0.8f) elapsed time: %0.1f" % (
@@ -264,15 +265,17 @@ def main():
 
             dist.barrier()
             dist.all_reduce(count_per, op=dist.ReduceOp.SUM)
-            dist.all_reduce(count_att, op=dist.ReduceOp.SUM)
-            if args.is_master:
-                acc_per = count_per / len(val_dataset)
-                if _is_abn:
-                    acc_att = count_att / len(val_dataset)
+            if _is_abn:
+                dist.all_reduce(count_att, op=dist.ReduceOp.SUM)
 
+            if args.is_master:
+                ### accuracy of perception branch (or ouput of ResNet)
+                acc_per = count_per / len(val_dataset)
                 print("    accuracy (per):", acc_per.item())
                 writer.add_scalar("accuracy/per", acc_per.item(), epoch)
+                ### accuracy of attention branch
                 if _is_abn:
+                    acc_att = count_att / len(val_dataset)
                     print("    accuracy (att):", acc_att.item())
                     writer.add_scalar("accuracy/att", acc_att.item(), epoch)
 
