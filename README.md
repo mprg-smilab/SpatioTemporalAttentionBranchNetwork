@@ -1,13 +1,12 @@
 # Spatio-Temporal Attention Branch Network (ST-ABN)
 
-
 This repository is PyTorch implementation of Spatio-Temporal Attention Branch Network [1].
 
 ## Citation
 
 If you find this repository is useful, please cite the following reference.
 
-```
+```bibtex
 @article{Mitsuhara2021,
     author={Masahiro Mitsuhara and Tsubasa Hirakawa and Takayoshi Yamashita and Hironobu Fujiyoshi},
     title={ST-ABN: Visual Explanation Taking into Account Spatio-temporal Information for Video Recognition},
@@ -20,18 +19,24 @@ If you find this repository is useful, please cite the following reference.
 
 Please check README.md in docker directory.
 
-
 ## Data Preparation
 
 TBA
 
 ## Training
 
-TBA
+Please see `./script_local/run_train_local.sh`.
 
 ## Evaluation
 
-TBA
+Please see `./script_local/run_eval_local.sh`.
+
+## Pretrained model
+
+We publish pre-trained models.
+Please download from the following link.
+
+* [ST-ABN (ResNet 50 backbone)](https://drive.google.com/file/d/1u9aXstUxkkS6OYNQPN4_iWak2--mdoY1/view?usp=sharing)
 
 
 ## References
