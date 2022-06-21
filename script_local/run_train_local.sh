@@ -53,17 +53,7 @@ python3 -m torch.distributed.launch \
 # -----------------------------------------------
 # MEMO
 # -----------------------------------------------
-### save stdout and stderr for a text file
-# bash stdout_and_stderr.sh 2>&1 | tee stdout_and_stderr.log
-
-
 ### warning
 # WARNING:torch.distributed.run:--use_env is deprecated and will be removed in future releases.
 #  Please read local_rank from `os.environ('LOCAL_RANK')` instead.
 # INFO:torch.distributed.launcher.api:Starting elastic_operator with launch configs:
-
-
-
-### about distributed data parallel script
-#     proc_per_node, nnodesは，torch.distributed.launchの引数？
-#     node_rankは複数台のGPUサーバーのIDだと思う

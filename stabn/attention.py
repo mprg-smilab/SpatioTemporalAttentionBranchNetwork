@@ -47,7 +47,7 @@ def write_spatial_attention(frame, attention_sp):
     """make a single attention map image"""
     H, W, _ = frame.shape
     attention_sp *= 255
-    att_map = cv2.applyColorMap(attention_sp.astype(np.uint8), cv2.COLORMAP_JET)
+    att_map = cv2.applyColorMap(attention_sp.clip(0, 255).astype(np.uint8), cv2.COLORMAP_JET)
     att_map = cv2.resize(att_map, dsize=(W, H), interpolation=cv2.INTER_LINEAR)
     return cv2.addWeighted(frame.astype(np.uint8), 0.6, att_map, 0.4, 0)
 

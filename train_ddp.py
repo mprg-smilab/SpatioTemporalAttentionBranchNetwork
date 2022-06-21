@@ -139,7 +139,7 @@ def main():
     ### train loader with distributed sampler
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=args.batch_size,
-        sampler=train_sampler, shuffle=False, num_workers=args.num_workers
+        sampler=train_sampler, shuffle=True, num_workers=args.num_workers
     )
     ### validation loader with distributed sampler
     val_loader = DataLoader(
@@ -151,7 +151,8 @@ def main():
     _is_abn = True if "abn_" in args.model else False
     model = load_model(
         model_name=args.model, num_classes=train_dataset.NUM_CLASSES,
-        sample_size=args.frame_size, sample_duration=args.frame_length, dout_ratio=args.dout_ratio, pretrain_2d=args.pretrained
+        sample_size=args.frame_size, sample_duration=args.frame_length,
+        dout_ratio=args.dout_ratio, pretrain_2d=args.pretrained
     )
     criterion = nn.CrossEntropyLoss()
 
