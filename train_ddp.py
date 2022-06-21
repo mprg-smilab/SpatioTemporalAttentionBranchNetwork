@@ -8,7 +8,8 @@ train_stabn_ddp.py
 This script train an ST-ABN based on 3D ResNet backbone with Something-Something V2 Dataset.
 This script uses Distributed Data Parallel (DDP) of PyTorch.
 
-This implementation is based on the following: https://leimao.github.io/blog/PyTorch-Distributed-Training/
+This implementation is based on the following website:
+    https://leimao.github.io/blog/PyTorch-Distributed-Training/
 
 usage:
     exec:
@@ -106,6 +107,7 @@ def parser():
         args.momentum     = _resume_args['momentum']
         args.wd           = _resume_args['wd']
         args.use_nesterov = _resume_args['use_nesterov']
+        args.random_seed  = _resume_args['random_seed']
 
     ### set local_rank == 0 as master
     args.is_master = args.local_rank == 0
