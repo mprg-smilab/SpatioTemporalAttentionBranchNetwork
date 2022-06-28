@@ -124,7 +124,6 @@ def main():
 
 
 def evaluation(model, data_loader, result_dir_name, args, is_abn):
-
     ### make result directory in logdir
     result_dir = os.path.join(args.logdir, result_dir_name)
     os.makedirs(result_dir, exist_ok=True)
@@ -135,17 +134,16 @@ def evaluation(model, data_loader, result_dir_name, args, is_abn):
     ### evaluation
     model.eval()
     with torch.no_grad():
-        # TODO: modify code for multiple segment inference
         for video, label, video_name in data_loader:
             video, label = video.cuda(), label.cuda()
             output = model(video)
 
             # count for top-1 accuracy
             if is_abn:
-                count_per_top1 += torch.sum(output[0].argmax(dim=1) == label)
-                count_att_top1 += torch.sum(output[1].argmax(dim=1) == label)
+                count_per_top1 += torch.sum(output[0].argmax(dim=1) == label).item()
+                count_att_top1 += torch.sum(output[1].argmax(dim=1) == label).item()
             else:
-                count_per_top1 += torch.sum(output.argmax(dim=1) == label)
+                count_per_top1 += torch.sum(output.argmax(dim=1) == label).item()
 
             # count for top-5 accuracy
             if is_abn:
@@ -171,8 +169,8 @@ def evaluation(model, data_loader, result_dir_name, args, is_abn):
                     save_st_attention(data_loader.dataset._denormalize(v), att_sp, att_tp, os.path.join(result_dir, v_id + ".png"))
 
     ### top-1 and top-5 accuracy
-    acc_per_top1 = count_per_top1.item() / len(data_loader.dataset)
-    acc_att_top1 = count_att_top1.item() / len(data_loader.dataset)
+    acc_per_top1 = count_per_top1 / len(data_loader.dataset)
+    acc_att_top1 = count_att_top1 / len(data_loader.dataset)
     acc_per_top5 = count_per_top5 / len(data_loader.dataset)
     acc_att_top5 = count_att_top5 / len(data_loader.dataset)
 

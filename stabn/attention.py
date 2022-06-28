@@ -16,10 +16,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-# TODO: define a function
-# def save_st_attention_minibatch(videos, sp_attentions, tp_attentions, save_names):
-
-
 def save_st_attention(video, attention_sp, attention_tp, save_name):
     T, H, W, _ = video.shape
     _n_col = 8
@@ -29,6 +25,8 @@ def save_st_attention(video, attention_sp, attention_tp, save_name):
     for v, a_sp, a_tp in zip(video, attention_sp, attention_tp.squeeze()):
         att_map_tmp = write_spatial_attention(v, a_sp)
         att_map_tmp = write_temporal_attention(att_map_tmp, a_tp)
+        # NOTE: the channel order of opencv image is BGR, but matplotlib deal with RGB order
+        att_map_tmp = cv2.cvtColor(att_map_tmp, cv2.COLOR_BGR2RGB)
         dst_att_map.append(att_map_tmp)
 
     fig, ax = plt.subplots(_n_row, _n_col, figsize=(10, 1.5 * _n_row))
@@ -37,7 +35,7 @@ def save_st_attention(video, attention_sp, attention_tp, save_name):
         for j in range(_n_col):
             ax[i, j].xaxis.set_major_locator(plt.NullLocator())
             ax[i, j].yaxis.set_major_locator(plt.NullLocator())
-            ax[i, j].imshow(dst_att_map[_n_col * i + j], cmap="bone")
+            ax[i, j].imshow(dst_att_map[_n_col * i + j])
     plt.tight_layout()
     plt.savefig(save_name)
     plt.close()

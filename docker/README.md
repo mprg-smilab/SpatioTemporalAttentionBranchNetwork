@@ -59,9 +59,9 @@ docker run --gpus all -ti --rm --ipc=host \
     cumprg/stabn:1.10.0
 ```
 
-## Note
+## Memo
 
-Here, we write a memorandum to remoember the execution environment for the original ST-ABN program ([v0.1](https://github.com/machine-perception-robotics-group/ST-ABN_PyTorch/tree/v0.1)).
+Here, we write a memorandum to remind the execution environment for the original [ST-ABN program v0.1](https://github.com/machine-perception-robotics-group/ST-ABN_PyTorch/tree/v0.1).
 
 ### Library & Python Package Requirements
 
@@ -74,6 +74,6 @@ The requirements of [the original ST-ABN program](https://github.com/machine-per
 - GCC: 4.9+
 - mmcv: 0.2.10
 
-If we use [the original ST-ABN program](https://github.com/machine-perception-robotics-group/ST-ABN_PyTorch/tree/v0.1), we should use `nvcr.io/nvidia/pytorch:20.09-py3`.
+If you want to use [the original ST-ABN program](https://github.com/machine-perception-robotics-group/ST-ABN_PyTorch/tree/v0.1), you should use `nvcr.io/nvidia/pytorch:20.09-py3`.
 
 The details of NGC container can be found at [Release Notes](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/).
